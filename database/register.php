@@ -24,7 +24,7 @@ if (isset($_POST['submit'])) {
     if(mysqli_num_rows($check) > 0) {
       echo "<script>
                 alert('Email sudah terdaftar!');
-                window.location.href = 'register.php';
+                window.location.href = '../form/register.html';
               </script>";
         exit;
     }
