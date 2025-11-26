@@ -9,62 +9,145 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <style>
+      /* Wrapper password */
+      .password-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      .password-wrapper input {
+        width: 100%;
+        padding-right: 40px;
+      }
+
+      /* Ikon mata */
+      .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        opacity: 0.7;
+      }
+
+      .toggle-password:hover {
+        opacity: 1;
+      }
+    </style>
   </head>
+
   <body>
     <div class="container">
       <form action="../database/register.php" method="post">
         <h2 style="text-align: center; margin-bottom: 20px">Sign up</h2>
-        <label>Nama: </label> <br />
+
+        <label>Nama: </label>
         <input
           type="text"
           name="nama"
           placeholder="Masukan Nama Anda"
           required
         />
-        <br />
 
-        <label>Tanggal lahir: </label> <br />
-        <input type="date" name="tl" placeholder="Tanggal lahir" required />
-        <br />
+        <label>Tanggal lahir: </label>
+        <input type="date" name="tl" required />
 
-        <label>Prodi: </label> <br />
+        <label>Prodi: </label>
         <select name="prodi" required>
           <option selected>Pilih Prodi</option>
           <option value="IF">Teknik Informatika</option>
           <option value="SI">Sistem Informasi</option>
         </select>
-        <br />
 
-        <label>Email: </label> <br />
+        <label>Email: </label>
         <input
           type="email"
           name="email"
           placeholder="Masukan Email anda"
           required
         />
-        <br />
 
-        <label>Password: </label> <br />
-        <input
-          type="password"
-          name="password"
-          placeholder="Masukan Password"
-          required
-        />
-        <br />
+        <!-- PASSWORD -->
+        <label>Password: </label>
+        <div class="password-wrapper">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Masukan Password"
+            required
+          />
 
-        <label>Konfirmasi Password: </label> <br />
-        <input
-          type="password"
-          name="konfirmasi_pw"
-          placeholder="KonfirmasiPassword"
-          required
-        />
-        <br />
+          <!-- SVG Icon -->
+          <svg id="togglePw1" class="toggle-password" viewBox="0 0 24 24">
+            <path
+              d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z"
+              fill="#444"
+            />
+            <circle cx="12" cy="12" r="2.5" fill="#444"></circle>
+          </svg>
+        </div>
+
+        <!-- KONFIRMASI PASSWORD -->
+        <label>Konfirmasi Password: </label>
+        <div class="password-wrapper">
+          <input
+            type="password"
+            id="password2"
+            name="konfirmasi_pw"
+            placeholder="Konfirmasi Password"
+            required
+          />
+
+          <!-- SVG Icon -->
+          <svg id="togglePw2" class="toggle-password" viewBox="0 0 24 24">
+            <path
+              d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z"
+              fill="#444"
+            />
+            <circle cx="12" cy="12" r="2.5" fill="#444"></circle>
+          </svg>
+        </div>
 
         <button type="submit" name="submit">Register</button>
         <a href="login.html">Sudah Punya akun?</a>
       </form>
     </div>
+
+    <!-- SCRIPT SHOW/HIDE PASSWORD -->
+    <script>
+      function setupToggle(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        let shown = false;
+
+        icon.onclick = () => {
+          shown = !shown;
+
+          if (shown) {
+            input.type = "text";
+            icon.innerHTML = `
+              <path d="M1 12C2.73 8.11 7 5 12 5s9.27 3.11 11 7c-1.73 3.89-6 7-11 7S2.73 15.89 1 12z" fill="#444"/>
+              <line x1="4" y1="4" x2="20" y2="20" stroke="#444" stroke-width="2" />
+            `;
+          } else {
+            input.type = "password";
+            icon.innerHTML = `
+              <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z"
+                fill="#444"/>
+              <circle cx="12" cy="12" r="2.5" fill="#444"></circle>
+            `;
+          }
+        };
+      }
+
+      // Setup dua password
+      setupToggle("password", "togglePw1");
+      setupToggle("password2", "togglePw2");
+    </script>
   </body>
 </html>

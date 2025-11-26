@@ -19,6 +19,16 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
+    $check = mysqli_query($conn, "SELECT Email FROM `user` WHERE Email = '$email'");
+
+    if(mysqli_num_rows($check) > 0) {
+      echo "<script>
+                alert('Email sudah terdaftar!');
+                window.location.href = 'register.php';
+              </script>";
+        exit;
+    }
+
     // Jika password sama → masukkan ke database
     $sql = "INSERT INTO `user` (`Nama`, `Tanggal_lahir`, `Prodi`, `Email`, `Password`)
             VALUES ('$nama', '$tl', '$prodi', '$email', '$password')";
