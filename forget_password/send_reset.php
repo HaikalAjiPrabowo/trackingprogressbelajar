@@ -26,7 +26,7 @@ if (isset($_POST['submit'])) {
     $kode = rand(100000, 999999);
     date_default_timezone_set('Asia/Jakarta');
     $dt = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
-    $dt->modify('+10 minutes');
+    $dt->modify('+1 minutes');
     $expired = $dt->format('Y-m-d H:i:s');
 
 
@@ -58,7 +58,7 @@ if (isset($_POST['submit'])) {
             <h3>Kode Reset Password</h3>
             <p>Gunakan kode berikut untuk reset password Anda:</p>
             <h1 style='font-size:40px;'>$kode</h1>
-            <p>Kode berlaku 10 menit.</p>
+            <p>Kode berlaku 1 menit.</p>
         ";
 
         $mail->send();
