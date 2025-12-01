@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/form.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Wrapper password */
+      .password-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      .password-wrapper input {
+        width: 100%;
+        padding-right: 40px;
+      }
+
+      /* Ikon mata */
+      .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        opacity: 0.7;
+      }
+
+      .toggle-password:hover {
+        opacity: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="left-panel">
+        <img src="Logo Tracking.png" alt="Logo" />
+        <p><b>Website Tracking</b></p>
+        <p style="font-size: small; margin-top: 0%">
+          Website tracking belajar adalah platform yang digunakan untuk
+          memantau, mencatat, dan menganalisis perkembangan belajar pengguna
+        </p>
+      </div>
+      <form action="../database/login.php" method="post">
+        <h2 style="text-align: center; margin-bottom: 20px">Sign in</h2>
+
+        <label>Email: </label> <br />
+        <input
+          type="email"
+          name="email"
+          placeholder="Masukan Email Anda"
+          required
+        />
+        <br />
+
+        <label>Password: </label> <br />
+        <div class="password-wrapper">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Masukan Password Anda"
+            required
+          />
+
+          <!-- SVG Ikon Mata -->
+          <svg id="togglePw" class="toggle-password" viewBox="0 0 24 24">
+            <path
+              d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z"
+              fill="#444"
+            />
+            <circle cx="12" cy="12" r="2.5" fill="#444"></circle>
+          </svg>
+        </div>
+
+        <br />
+
+        <button type="submit">Login</button>
+        <a href="../forget_password/lupa_pw.html">Lupa Password?</a><br />
+        <a href="register.html">Belum Memiliki akun?</a>
+      </form>
+    </div>
+
+    <!-- SCRIPT SHOW/HIDE PASSWORD -->
+    <script>
+      const pw = document.getElementById("password");
+      const toggle = document.getElementById("togglePw");
+
+      let shown = false;
+
+      toggle.onclick = () => {
+        shown = !shown;
+
+        if (shown) {
+          pw.type = "text";
+          toggle.innerHTML = `
+            <path d="M1 12C2.73 8.11 7 5 12 5s9.27 3.11 11 7c-1.73 3.89-6 7-11 7S2.73 15.89 1 12z" fill="#444"/>
+            <line x1="4" y1="4" x2="20" y2="20" stroke="#444" stroke-width="2" />
+          `;
+        } else {
+          pw.type = "password";
+          toggle.innerHTML = `
+            <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z"
+              fill="#444"/>
+            <circle cx="12" cy="12" r="2.5" fill="#444"></circle>
+          `;
+        }
+      };
+    </script>
+  </body>
+</html>
