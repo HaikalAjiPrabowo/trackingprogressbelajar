@@ -1,0 +1,49 @@
+/* styles.css — ringan */
+body {
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+.card {
+  border-radius: 12px;
+}
+.list-group-item .badge {
+  font-size: 0.8rem;
+}
+
+.schedule-container {
+  width: 500px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+
+.schedule-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.day-card {
+  background: #f7f7f7;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.day-card h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.event {
+  display: flex;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+.event .time {
+  font-weight: bold;
+  width: 120px;
+}
+
+.event .title {
+  color: #555;
+}
