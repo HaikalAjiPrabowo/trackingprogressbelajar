@@ -1,16 +1,19 @@
 <?php
-include "../api/src/database/koneksi.php";
+require_once __DIR__ . '/../api/src/Utils/DB.php';
+use Utils\DB;
 
 if (isset($_POST['submit'])) {
 
-    $nama       = $_POST['nama'];
-    $tl         = $_POST['tl'];
-    $prodi      = $_POST['prodi'];
-    $email      = $_POST['email'];
-    $password   = $_POST['password'];
+    $nama         = $_POST['nama'];
+    $tl           = $_POST['tl'];
+    $prodi        = $_POST['prodi'];
+    $email        = $_POST['email'];
+    $password     = $_POST['password'];
     $konfirmasi_pw = $_POST['konfirmasi_pw'];
 
-    // Cek password dan konfirmasi
+    // ==========================
+    // CEK PASSWORD KONFIRMASI
+    // ==========================
     if ($password !== $konfirmasi_pw) {
         echo "<script>
                 alert('Password dan konfirmasi password tidak sama!');
@@ -19,24 +22,47 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    // ==========================
+    // KONEKSI DATABASE (PDO)
+    // ==========================
+    $db = DB::conn();
 
+    // ==========================
+    // CEK EMAIL SUDAH DIPAKAI ?
+    // ==========================
+    $check = $db->prepare("SELECT id FROM user WHERE Email = ?");
+    $check->execute([$email]);
 
-    $check = mysqli_query($conn, "SELECT Email FROM `user` WHERE Email = '$email'");
-
-    if(mysqli_num_rows($check) > 0) {
-      echo "<script>
+    if ($check->fetch()) {
+        echo "<script>
                 alert('Email sudah terdaftar!');
                 window.location.href = '../form/register.html';
               </script>";
         exit;
     }
 
-    // Jika password sama → masukkan ke database
-    $sql = "INSERT INTO `user` (`Nama`, `Tanggal_lahir`, `Prodi`, `Email`, `Password`)
-            VALUES ('$nama', '$tl', '$prodi', '$email', '$password')";
+    // ==========================
+    // HASH PASSWORD
+    // ==========================
+    $hash = password_hash($password, PASSWORD_DEFAULT);
 
-    if (mysqli_query($conn, $sql)) {
+    // ==========================
+    // INSERT DATA USER
+    // ==========================
+    $insert = $db->prepare("
+        INSERT INTO user (Nama, Tanggal_lahir, Prodi, Email, Password)
+        VALUES (?, ?, ?, ?, ?)
+    ");
+
+    $ok = $insert->execute([
+        $nama,
+        $tl,
+        $prodi,
+        $email,
+        $hash
+    ]);
+
+    if ($ok) {
         echo "<script>
                 alert('Register berhasil! Silakan login.');
                 window.location.href = '../form/login.html';

@@ -2,8 +2,6 @@
 session_start();
 require_once __DIR__ . '/src/Utils/db.php';
 
-use Utils\DB;
-use Services\GoogleCalendarService;
 // ===============================================
 // AUTOLOAD CONTROLLERS
 // ===============================================
@@ -21,11 +19,6 @@ spl_autoload_register(function ($class) {
 // debug sementara (hapus kalau sudah selesai)
 ini_set('display_errors',1);
 error_reporting(E_ALL);
-
-// sementara untuk testing
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
-}
 
 // Headers API
 header("Content-Type: application/json");
