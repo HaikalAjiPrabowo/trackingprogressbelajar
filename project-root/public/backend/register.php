@@ -1,29 +1,8 @@
 <?php
-use Utils\DB;
-require "../api/src/Utils/DB.php";  // Load class DB
 
-$conn = DB::conn();
-
-if (isset($_POST['submit'])) {
-
-    $nama           = $_POST['nama'];
-    $tl             = $_POST['tl'];
-    $prodi          = $_POST['prodi'];
-    $email          = $_POST['email'];
-    $password       = $_POST['password'];
-    $konfirmasi_pw  = $_POST['konfirmasi_pw'];
-
-    // VALIDASI PASSWORD Minimal 6 karakter
-
-    if (strlen($password) < 6) {
-        echo "<script>
-                alert('Password minimal 6 karakter!');
-                window.history.back();
-              </script>";
-        exit;
-    }
-
-    // Cek password dan konfirmasi
+    // ==========================
+    // CEK PASSWORD KONFIRMASI
+    // ==========================
     if ($password !== $konfirmasi_pw) {
         echo "<script>
                 alert('Password dan konfirmasi password tidak sama!');
@@ -32,16 +11,18 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
-    // Hash password (setelah lolos validasi)
-    $password = password_hash($password, PASSWORD_DEFAULT);
+    // ==========================
+    // KONEKSI DATABASE (PDO)
+    // ==========================
+    $db = DB::conn();
 
-    // CEK EMAIL SUDAH ADA BELUM
+    // ==========================
+    // CEK EMAIL SUDAH DIPAKAI ?
+    // ==========================
+    $check = $db->prepare("SELECT id FROM user WHERE Email = ?");
+    $check->execute([$email]);
 
-    $check = $conn->prepare("SELECT Email FROM user WHERE Email = :email");
-    $check->bindParam(":email", $email);
-    $check->execute();
-
-    if ($check->rowCount() > 0) {
+    if ($check->fetch()) {
         echo "<script>
                 alert('Email sudah terdaftar!');
                 window.location.href = '../form/register.html';

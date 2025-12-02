@@ -1,3 +1,12 @@
+<?php
+session_start();
+$namaUser = $_SESSION['nama'] ?? 'User';
+$emailUser = $_SESSION['email'] ?? '-';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -20,11 +29,34 @@
 <nav class="navbar navbar-expand-lg navbar-white bg-white shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="#">TrackStudy</a>
-        <a href="logout.php">logout</a>
-        <div class="d-flex align-items-center">
-            <span class="me-3 text-muted">Halo, <strong>NamaUser</strong></span>
-            <img src="#" class="rounded-circle" alt="user"/>
-        </div>
+<div class="dropdown">
+    <button class="btn btn-white dropdown-toggle d-flex align-items-center" 
+            type="button" 
+            data-bs-toggle="dropdown">
+
+        <img src="https://ui-avatars.com/api/?name=<?= urlencode($namaUser) ?>&background=random"
+            width="36" height="36" 
+            class="rounded-circle me-2">
+
+        <span><?= htmlspecialchars($namaUser) ?></span>
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="profile.php">
+            <i class="bi bi-person-circle me-2"></i>Profil Saya
+        </a></li>
+
+        <li><a class="dropdown-item" href="settings.php">
+            <i class="bi bi-gear me-2"></i>Pengaturan
+        </a></li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <li><a class="dropdown-item text-danger" href="logout.php">
+            <i class="bi bi-box-arrow-right me-2"></i>Logout
+        </a></li>
+    </ul>
+</div>
     </div>
 </nav>
 
