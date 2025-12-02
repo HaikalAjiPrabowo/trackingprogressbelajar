@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo "<script>
                 alert('Login berhasil!');
-                window.location='dashboard.php';
+                window.location='../project-root/public/dashboard.php';
               </script>";
         exit;
 
