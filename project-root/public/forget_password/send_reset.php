@@ -1,39 +1,59 @@
 <?php
-include "../api/src/database/koneksi.php";
+require "../api/src/Utils/DB.php";
 
+use Utils\DB;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../api/src/PHPmailer/src/Exception.php'; //exception
-require '../api/src/PHPmailer/src/PHPMailer.php'; //phpmailer.php
-require '../api/src/PHPmailer/src/SMTP.php'; //SMTP.php
+require '../api/src/PHPmailer/src/Exception.php';
+require '../api/src/PHPmailer/src/PHPMailer.php';
+require '../api/src/PHPmailer/src/SMTP.php';
 
 if (isset($_POST['submit'])) {
 
     $email = trim($_POST['email']);
 
+    // Validasi email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>alert('Format email salah!'); window.location='../form/lupa_pw.html';</script>";
         exit;
     }
 
-    $query = mysqli_query($conn, "SELECT * FROM user WHERE email='$email'");
-    if (mysqli_num_rows($query) == 0) {
+    // Ambil koneksi PDO
+    $conn = DB::conn();
+
+    // Cek apakah email ada
+    $stmt = $conn->prepare("SELECT * FROM user WHERE email = :email");
+    $stmt->bindValue(":email", $email);
+    $stmt->execute();
+
+    if ($stmt->rowCount() === 0) {
         echo "<script>alert('Email tidak ditemukan!'); window.location='../form/lupa_pw.html';</script>";
         exit;
     }
 
+    // Buat kode OTP
     $kode = rand(100000, 999999);
+
     date_default_timezone_set('Asia/Jakarta');
     $dt = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
     $dt->modify('+1 minutes');
     $expired = $dt->format('Y-m-d H:i:s');
 
+    // Update kode dan expired
+    $update = $conn->prepare("
+        UPDATE user 
+        SET reset_code = :kode, code_expired = :exp 
+        WHERE email = :email
+    ");
 
-    mysqli_query($conn,
-        "UPDATE user SET reset_code='$kode', code_expired='$expired' WHERE email='$email'"
-    );
+    $update->execute([
+        ":kode"  => $kode,
+        ":exp"   => $expired,
+        ":email" => $email
+    ]);
 
+    // Kirim email
     $mail = new PHPMailer(true);
 
     try {
@@ -42,7 +62,7 @@ if (isset($_POST['submit'])) {
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
 
-        // GANTI INI !!!
+        // Ganti email SMTP kamu
         $mail->Username = 'trackingbelajar@gmail.com';
         $mail->Password = 'skoaosffldhdxind';
 
