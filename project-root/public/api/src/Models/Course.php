@@ -11,6 +11,7 @@ class Course {
         return $stmt->fetchAll();
     }
 
+    //Ini Create
     public static function create($user_id, $data) {
         $stmt = DB::conn()->prepare("
             INSERT INTO courses (user_id, code, title, category, color) 
@@ -26,6 +27,8 @@ class Course {
         return DB::conn()->lastInsertId();
     }
 
+
+    //ini Update
     public static function update($id, $user_id, $data) {
         $stmt = DB::conn()->prepare("
             UPDATE courses SET
@@ -42,6 +45,7 @@ class Course {
         ]);
     }
 
+//Ini Delete
     public static function delete($id, $user_id) {
         $stmt = DB::conn()->prepare("DELETE FROM courses WHERE id=? AND user_id=?");
         return $stmt->execute([$id, $user_id]);

@@ -1,12 +1,15 @@
 <?php
 // masukan_password.php
-ini_set('display_errors', 1); // non-aktifkan di production
+ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include "../api/src/database/koneksi.php"; // pastikan $conn adalah mysqli
+use Utils\DB;
+require "../api/src/Utils/DB.php";   // load class DB
 
-// validasi query param email
+$pdo = DB::conn();   // ambil koneksi PDO
+
+// validasi email di URL
 if (!isset($_GET['email'])) {
     echo "<script>alert('Akses tidak valid.'); window.location='lupa_pw.html';</script>";
     exit;
@@ -22,10 +25,11 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $password  = isset($_POST['password']) ? trim($_POST['password']) : '';
-    $password2 = isset($_POST['password2']) ? trim($_POST['password2']) : '';
 
-    // Validasi dasar
+    $password  = trim($_POST['password'] ?? '');
+    $password2 = trim($_POST['password2'] ?? '');
+
+    // Validasi password
     if ($password === '' || $password2 === '') {
         $errors[] = "Masukkan password dan konfirmasi password.";
     } elseif ($password !== $password2) {
@@ -35,58 +39,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        // Ambil reset_code (pastikan user memang datang dari alur reset)
-        $stmt = $conn->prepare("SELECT reset_code FROM user WHERE email = ?");
-        if (!$stmt) {
-            $errors[] = "Terjadi kesalahan database (prepare).";
+
+        // cek apakah email dan reset_code valid
+        $stmt = $pdo->prepare("SELECT reset_code FROM user WHERE email = ?");
+        $stmt->execute([$email]);
+        $data = $stmt->fetch();
+
+        if (!$data) {
+            $errors[] = "Email tidak ditemukan.";
+        } elseif (empty($data['reset_code'])) {
+            $errors[] = "Token reset tidak valid atau sudah digunakan.";
         } else {
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            $r = $res->fetch_assoc();
-            $stmt->close();
 
-            if (!$r) {
-                $errors[] = "Email tidak ditemukan.";
-            } else {
-                // Pastikan ada reset_code (token) — jika kosong, tolak proses reset
-                if (empty($r['reset_code'])) {
-                    $errors[] = "Token reset tidak ditemukan atau sudah dipakai. Silakan minta kode baru.";
+            // hash password
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            // update password + hapus reset_code
+            $stmt2 = $pdo->prepare("
+                UPDATE user 
+                SET password = ?, reset_code = NULL, code_expired = NULL 
+                WHERE email = ?
+            ");
+
+            if ($stmt2->execute([$hash, $email])) {
+
+                if ($stmt2->rowCount() > 0) {
+                    echo "<script>
+                            alert('Password berhasil diubah. Silakan login.');
+                            window.location='login.html';
+                          </script>";
+                    exit;
                 } else {
-                    // Hash password (safe)
-                    $hash = password_hash($password, PASSWORD_DEFAULT);
-
-                    // Update password dan hapus token
-                    $stmt2 = $conn->prepare("UPDATE user SET password = ?, reset_code = NULL, code_expired = NULL WHERE email = ?");
-                    if (!$stmt2) {
-                        $errors[] = "Terjadi kesalahan database (prepare update).";
-                    } else {
-                        $stmt2->bind_param("ss", $hash, $email);
-                        $ok = $stmt2->execute();
-
-                        if ($ok) {
-                            // pastikan row benar-benar diupdate
-                            if ($stmt2->affected_rows > 0) {
-                                $stmt2->close();
-                                $success = true;
-                                // sukses: redirect ke login
-                                echo "<script>
-                                        alert('Password berhasil diubah. Silakan login.');
-                                        window.location='login.html';
-                                      </script>";
-                                exit;
-                            } else {
-                                // execute sukses tapi no rows affected => mungkin email mismatch
-                                $errors[] = "Update tidak mengubah data (mungkin email tidak cocok).";
-                                $stmt2->close();
-                            }
-                        } else {
-                            $errors[] = "Gagal menyimpan password ke database. Silakan coba lagi.";
-                            // untuk debugging (hapus di production): $errors[] = "Debug: " . htmlspecialchars($stmt2->error);
-                            $stmt2->close();
-                        }
-                    }
+                    $errors[] = "Gagal mengubah password. Email mungkin tidak cocok.";
                 }
+
+            } else {
+                $errors[] = "Gagal menyimpan password ke database.";
             }
         }
     }
@@ -112,16 +100,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="post" autocomplete="off">
-      <label for="password">Password baru</label><br>
-      <input type="password" id="password" name="password" required style="width:100%;padding:8px;margin:8px 0;"><br>
+      <label>Password baru</label>
+      <input type="password" name="password" required style="width:100%;padding:8px;margin:8px 0;">
 
-      <label for="password2">Konfirmasi password</label><br>
-      <input type="password" id="password2" name="password2" required style="width:100%;padding:8px;margin:8px 0;"><br>
+      <label>Konfirmasi password</label>
+      <input type="password" name="password2" required style="width:100%;padding:8px;margin:8px 0;">
 
       <button type="submit" style="padding:10px 14px;width:100%;">Simpan Password Baru</button>
     </form>
 
-    <p style="margin-top:12px;font-size:13px;color:#666;">Jika ada masalah, kembali ke <a href="login.html">minta kode baru</a>.</p>
+    <p style="margin-top:12px;font-size:13px;color:#666;">
+      Jika ada masalah, kembali ke <a href="lupa_pw.html">minta kode baru</a>.
+    </p>
   </div>
 </body>
 </html>

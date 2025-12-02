@@ -22,10 +22,7 @@ spl_autoload_register(function ($class) {
 ini_set('display_errors',1);
 error_reporting(E_ALL);
 
-// sementara untuk testing
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
-}
+
 
 // Headers API
 header("Content-Type: application/json");

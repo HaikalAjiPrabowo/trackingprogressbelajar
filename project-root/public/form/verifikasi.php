@@ -1,10 +1,11 @@
 <?php
-// verifikasi.php (debug-enabled, form + processing)
+// verifikasi.php (PDO + OOP Version)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include "../api/src/database/koneksi.php";
+require "../api/src/Utils/DB.php";
+use Utils\DB;
 
 if (!isset($_GET['email'])) {
     echo "<script>alert('Akses tidak valid!'); window.location='lupa_pw.html';</script>";
@@ -17,43 +18,44 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-$notice = '';
 $errors = [];
+$notice = "";
 
-// Jika form disubmit (verifikasi OTP)
+// Jika form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verifikasi'])) {
-    $kode_input = isset($_POST['kode']) ? trim($_POST['kode']) : '';
+
+    $kode_input = trim($_POST['kode']);
 
     if ($kode_input === '') {
         $errors[] = "Masukkan kode OTP.";
     } else {
-        // Ambil reset_code & code_expired dengan prepared statement
-        $stmt = $conn->prepare("SELECT reset_code, code_expired FROM user WHERE email = ?");
-        if (!$stmt) {
-            $errors[] = "Prepare failed: " . $conn->error;
-        } else {
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            $data = $res->fetch_assoc();
-            $stmt->close();
 
-            if (!$data) {
-                $errors[] = "Email tidak ditemukan.";
+        // Ambil koneksi PDO
+        $conn = DB::conn();
+
+        // Ambil database
+        $stmt = $conn->prepare("SELECT reset_code, code_expired FROM user WHERE email = :email");
+        $stmt->bindValue(":email", $email);
+        $stmt->execute();
+        $data = $stmt->fetch();
+
+        if (!$data) {
+            $errors[] = "Email tidak ditemukan.";
+        } else {
+            date_default_timezone_set('Asia/Jakarta');
+            $now = date("Y-m-d H:i:s");
+
+            if (empty($data['code_expired']) || $now > $data['code_expired']) {
+                $errors[] = "Kode OTP sudah kadaluarsa. Minta kode baru.";
             } else {
-                date_default_timezone_set('Asia/Jakarta');
-                $now = date("Y-m-d H:i:s");
-                if (empty($data['code_expired']) || $now > $data['code_expired']) {
-                    $errors[] = "Kode sudah kadaluarsa. Minta kode baru.";
+                $stored = trim((string)$data['reset_code']);
+
+                if ($kode_input !== $stored) {
+                    $errors[] = "Kode OTP salah.";
                 } else {
-                    $stored = trim((string)$data['reset_code']);
-                    if ($kode_input !== $stored) {
-                        $errors[] = "Kode OTP salah.";
-                    } else {
-                        // sukses: redirect ke masukan_password.php
-                        header("Location: masukan_password.php?email=" . urlencode($email));
-                        exit;
-                    }
+                    // OTP benar → arahkan ke halaman ubah password
+                    header("Location: masukan_password.php?email=" . urlencode($email));
+                    exit;
                 }
             }
         }
@@ -73,17 +75,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verifikasi'])) {
     <h2>Verifikasi Kode OTP</h2>
     <p>Email: <b><?= htmlspecialchars($email) ?></b></p>
 
-    <?php if (!empty($notice)) echo "<div style='color:green;'>".htmlspecialchars($notice)."</div>"; ?>
-    <?php if (!empty($errors)): ?>
-      <div style="background:#fff0f0;color:#900;padding:10px;border-radius:6px;margin-bottom:10px;">
-        <?php foreach ($errors as $err) echo "<div>- ".htmlspecialchars($err)."</div>"; ?>
+    <?php if (!empty($notice)): ?>
+      <div style="color:green;">
+        <?= htmlspecialchars($notice) ?>
       </div>
     <?php endif; ?>
 
-    <form method="post" action="">
-      <label for="kode">Masukkan Kode OTP</label><br>
-      <input id="kode" name="kode" type="text" maxlength="6" required style="width:100%;padding:8px;margin:8px 0;"><br>
-      <button type="submit" name="verifikasi" style="padding:10px 14px;">Verifikasi</button>
+    <?php if (!empty($errors)): ?>
+      <div style="background:#ffe8e8;color:#b30000;padding:10px;border-radius:6px;margin-bottom:12px;">
+        <?php foreach ($errors as $err): ?>
+            <div>- <?= htmlspecialchars($err) ?></div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+
+    <form method="post">
+      <label for="kode">Masukkan Kode OTP</label>
+      <input id="kode" name="kode" type="text" maxlength="6" required 
+             style="width:100%;padding:8px;margin:8px 0;">
+
+      <button type="submit" name="verifikasi" style="padding:10px 14px;width:100%;">Verifikasi</button>
     </form>
 
     <p style="margin-top:12px;font-size:13px;color:#666;">

@@ -1,18 +1,21 @@
 <?php
-include "../api/src/database/koneksi.php"; // sesuaikan path
+session_start();
+use Utils\DB;
+require "../api/src/Utils/DB.php"; 
+
+$pdo = DB::conn();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT id, password FROM user WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $user = $res->fetch_assoc();
-    $stmt->close();
+    // Ambil user berdasarkan email
+    $stmt = $pdo->prepare("SELECT id, password FROM user WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
 
-    // Jika email tidak ditemukan
+    // Email tidak ditemukan
     if (!$user) {
         echo "<script>
                 alert('Email tidak terdaftar!');
@@ -21,11 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    // Ambil password hash dari database
-    $hash = $user['password'];
+    // Cek password hash
+    if (password_verify($password, $user['password'])) {
 
-    // Verifikasi password
-    if (password_verify($password, $hash)) {
         session_start();
         $_SESSION['user_id'] = $user['id'];
 
