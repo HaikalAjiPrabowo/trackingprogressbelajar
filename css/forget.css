@@ -23,61 +23,20 @@ body {
   padding: 20px;
 }
 
-/* Container Login dan Regis*/
-.container {
+/* Container */
+.coontainer {
   width: 100%;
-  max-width: 900px;
-  background: url(baground.jpg);
-  border-radius: var(--card-radius);
-  display: flex;
-  overflow: hidden;
-  backdrop-filter: blur(4px);
-  box-shadow: var(--shadow);
-}
-
-.left-panel {
-  width: 45%;
-  padding: 40px;
-  color: rgb(0, 0, 0);
-  background: #0bc0db;
-  background: linear-gradient(
-    90deg,
-    rgb(11, 146, 167) 12%,
-    rgba(0, 65, 135, 1) 100%
-  );
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.left-panel img {
-  width: 200px;
-  margin-bottom: 20px;
-  display: block;
-  margin: 0 auto;
-}
-
-.left-panel h1 {
-  font-size: 26px;
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-
-.left-panel p {
-  font-size: 25px;
-  line-height: 22px;
-  opacity: 0.9;
-  font-family: Arial, Helvetica, sans-serif;
-  color: white;
+  max-width: 450px;
 }
 
 /* Card form */
 form {
-  width: 55%;
   background: rgba(205, 217, 221, 0.96);
   padding: 35px 28px;
-  border-radius: 0;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(17, 24, 39, 0.05);
+  backdrop-filter: blur(4px);
   transition: transform var(--transition), box-shadow var(--transition);
 }
 

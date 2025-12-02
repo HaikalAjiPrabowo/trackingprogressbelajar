@@ -19,6 +19,9 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+
     $check = mysqli_query($conn, "SELECT Email FROM `user` WHERE Email = '$email'");
 
     if(mysqli_num_rows($check) > 0) {

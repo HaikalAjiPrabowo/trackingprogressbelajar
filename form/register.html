@@ -42,6 +42,14 @@
 
   <body>
     <div class="container">
+      <div class="left-panel">
+        <img src="Logo Tracking.png" alt="Logo" />
+        <p><b>Website Tracking</b></p>
+        <p style="font-size: small; margin-top: 0%">
+          Website tracking belajar adalah platform yang digunakan untuk
+          memantau, mencatat, dan menganalisis perkembangan belajar pengguna
+        </p>
+      </div>
       <form action="../database/register.php" method="post">
         <h2 style="text-align: center; margin-bottom: 20px">Sign up</h2>
 
@@ -57,11 +65,7 @@
         <input type="date" name="tl" required />
 
         <label>Prodi: </label>
-        <select name="prodi" required>
-          <option selected>Pilih Prodi</option>
-          <option value="IF">Teknik Informatika</option>
-          <option value="SI">Sistem Informasi</option>
-        </select>
+        <input type="text" name="prodi" placeholder="Prodi Anda" required />
 
         <label>Email: </label>
         <input

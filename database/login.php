@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$user) {
         echo "<script>
                 alert('Email tidak terdaftar!');
-                window.location='login.html';
+                window.location='../form/login.html';
               </script>";
         exit;
     }
