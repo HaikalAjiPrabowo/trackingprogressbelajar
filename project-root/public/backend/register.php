@@ -1,15 +1,4 @@
 <?php
-require_once __DIR__ . '/../api/src/Utils/DB.php';
-use Utils\DB;
-
-if (isset($_POST['submit'])) {
-
-    $nama         = $_POST['nama'];
-    $tl           = $_POST['tl'];
-    $prodi        = $_POST['prodi'];
-    $email        = $_POST['email'];
-    $password     = $_POST['password'];
-    $konfirmasi_pw = $_POST['konfirmasi_pw'];
 
     // ==========================
     // CEK PASSWORD KONFIRMASI
@@ -41,28 +30,20 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
-    // ==========================
-    // HASH PASSWORD
-    // ==========================
-    $hash = password_hash($password, PASSWORD_DEFAULT);
+    // INSERT KE DATABASE
+    
+    $sql = "INSERT INTO user (Nama, Tanggal_lahir, Prodi, Email, Password)
+            VALUES (:nama, :tl, :prodi, :email, :password)";
 
-    // ==========================
-    // INSERT DATA USER
-    // ==========================
-    $insert = $db->prepare("
-        INSERT INTO user (Nama, Tanggal_lahir, Prodi, Email, Password)
-        VALUES (?, ?, ?, ?, ?)
-    ");
+    $stmt = $conn->prepare($sql);
 
-    $ok = $insert->execute([
-        $nama,
-        $tl,
-        $prodi,
-        $email,
-        $hash
-    ]);
+    $stmt->bindParam(":nama", $nama);
+    $stmt->bindParam(":tl", $tl);
+    $stmt->bindParam(":prodi", $prodi);
+    $stmt->bindParam(":email", $email);
+    $stmt->bindParam(":password", $password);
 
-    if ($ok) {
+    if ($stmt->execute()) {
         echo "<script>
                 alert('Register berhasil! Silakan login.');
                 window.location.href = '../form/login.html';
