@@ -20,6 +20,7 @@
 <nav class="navbar navbar-expand-lg navbar-white bg-white shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="#">TrackStudy</a>
+        <a href="logout.php">logout</a>
         <div class="d-flex align-items-center">
             <span class="me-3 text-muted">Halo, <strong>NamaUser</strong></span>
             <img src="#" class="rounded-circle" alt="user"/>

@@ -6,5 +6,5 @@ session_destroy();
 echo "
 <script>
     alert('Anda berhasil logout!');
-    window.location='../form/login.php';
+    window.location='../public/form/login.html';
 </script>";

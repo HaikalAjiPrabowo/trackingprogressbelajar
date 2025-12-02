@@ -1,25 +1,25 @@
 <?php
-include "../database/koneksi.php";
+include "../api/src/database/koneksi.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../PHPMailer/src/Exception.php';
-require '../PHPMailer/src/PHPMailer.php';
-require '../PHPMailer/src/SMTP.php';
+require '../api/src/PHPmailer/src/Exception.php'; //exception
+require '../api/src/PHPmailer/src/PHPMailer.php'; //phpmailer.php
+require '../api/src/PHPmailer/src/SMTP.php'; //SMTP.php
 
 if (isset($_POST['submit'])) {
 
     $email = trim($_POST['email']);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<script>alert('Format email salah!'); window.location='lupa_pw.php';</script>";
+        echo "<script>alert('Format email salah!'); window.location='../form/lupa_pw.html';</script>";
         exit;
     }
 
     $query = mysqli_query($conn, "SELECT * FROM user WHERE email='$email'");
     if (mysqli_num_rows($query) == 0) {
-        echo "<script>alert('Email tidak ditemukan!'); window.location='lupa_pw.php';</script>";
+        echo "<script>alert('Email tidak ditemukan!'); window.location='../form/lupa_pw.html';</script>";
         exit;
     }
 
@@ -63,7 +63,7 @@ if (isset($_POST['submit'])) {
 
         $mail->send();
 
-        echo "<script>alert('Kode OTP telah dikirim!'); window.location='verifikasi.php?email=$email';</script>";
+        echo "<script>alert('Kode OTP telah dikirim!'); window.location='../form/verifikasi.php?email=$email';</script>";
 
     } catch (Exception $e) {
         echo "Gagal mengirim email: {$mail->ErrorInfo}";

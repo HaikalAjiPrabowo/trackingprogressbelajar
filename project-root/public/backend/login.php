@@ -1,5 +1,5 @@
 <?php
-include "koneksi.php"; // sesuaikan path
+include "../api/src/database/koneksi.php"; // sesuaikan path
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </script>";
         exit;
     }
-
+    
     // Ambil password hash dari database
     $hash = $user['password'];
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo "<script>
                 alert('Login berhasil!');
-                window.location='../project-root/public/dashboard.php';
+                window.location='../dashboard.php';
               </script>";
         exit;
 

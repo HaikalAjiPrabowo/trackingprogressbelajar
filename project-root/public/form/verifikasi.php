@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include "../database/koneksi.php";
+include "../api/src/database/koneksi.php";
 
 if (!isset($_GET['email'])) {
     echo "<script>alert('Akses tidak valid!'); window.location='lupa_pw.html';</script>";
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verifikasi'])) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Verifikasi Kode OTP</title>
-<link rel="stylesheet" href="../css/forget.css">
+<link rel="stylesheet" href="forget.css">
 </head>
 <body>
   <div style="max-width:420px;margin:40px auto;padding:20px;border-radius:8px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.06);">

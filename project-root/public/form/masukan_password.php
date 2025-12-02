@@ -4,7 +4,7 @@ ini_set('display_errors', 1); // non-aktifkan di production
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include "../database/koneksi.php"; // pastikan $conn adalah mysqli
+include "../api/src/database/koneksi.php"; // pastikan $conn adalah mysqli
 
 // validasi query param email
 if (!isset($_GET['email'])) {
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 // sukses: redirect ke login
                                 echo "<script>
                                         alert('Password berhasil diubah. Silakan login.');
-                                        window.location='../form/login.html';
+                                        window.location='login.html';
                                       </script>";
                                 exit;
                             } else {
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Masukkan Password Baru</title>
-<link rel="stylesheet" href="../css/forget.css">
+<link rel="stylesheet" href="forget.css">
 </head>
 <body>
   <div style="max-width:420px;margin:40px auto;padding:20px;border-radius:8px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.06);">
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button type="submit" style="padding:10px 14px;width:100%;">Simpan Password Baru</button>
     </form>
 
-    <p style="margin-top:12px;font-size:13px;color:#666;">Jika ada masalah, kembali ke <a href="lupa_pw.html">minta kode baru</a>.</p>
+    <p style="margin-top:12px;font-size:13px;color:#666;">Jika ada masalah, kembali ke <a href="login.html">minta kode baru</a>.</p>
   </div>
 </body>
 </html>
