@@ -1,5 +1,15 @@
 <?php
 // masukan_password.php
+ oprekanhaikal
+ini_set('display_errors', 1); 
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once "../api/src/Utils/DB.php"; 
+use Utils\DB;
+
+// ambil koneksi PDO
+$conn = DB::conn();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -25,6 +35,10 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+ oprekanhaikal
+    $password  = trim($_POST['password'] ?? '');
+    $password2 = trim($_POST['password2'] ?? '');
+ main
 
     $password  = trim($_POST['password'] ?? '');
     $password2 = trim($_POST['password2'] ?? '');
@@ -39,6 +53,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+ oprekanhaikal
+        // Ambil reset_code
+        $stmt = $conn->prepare("SELECT reset_code FROM user WHERE email = ?");
+        $stmt->execute([$email]);
+        $r = $stmt->fetch();
+
+        if (!$r) {
+            $errors[] = "Email tidak ditemukan.";
+        } elseif (empty($r['reset_code'])) {
+            $errors[] = "Token reset tidak valid atau sudah digunakan.";
+        } else {
+            // Update password
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt2 = $conn->prepare(
+                "UPDATE user 
+                 SET password = ?, reset_code = NULL, code_expired = NULL 
+                 WHERE email = ?"
+            );
+
+            $ok = $stmt2->execute([$hash, $email]);
+
+            if ($ok && $stmt2->rowCount() > 0) {
+                echo "<script>
+                        alert('Password berhasil diubah. Silakan login.');
+                        window.location='login.html';
+                      </script>";
+                exit;
+            } else {
+                $errors[] = "Gagal menyimpan password. Silakan coba lagi.";
 
         // cek apakah email dan reset_code valid
         $stmt = $pdo->prepare("SELECT reset_code FROM user WHERE email = ?");
@@ -75,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } else {
                 $errors[] = "Gagal menyimpan password ke database.";
+ main
             }
         }
     }
