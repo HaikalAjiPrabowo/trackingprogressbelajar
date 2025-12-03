@@ -1,10 +1,14 @@
 <?php
 // masukan_password.php
-ini_set('display_errors', 1); // non-aktifkan di production
+ini_set('display_errors', 1); 
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include "../api/src/database/koneksi.php"; // pastikan $conn adalah mysqli
+require_once "../api/src/Utils/DB.php"; 
+use Utils\DB;
+
+// ambil koneksi PDO
+$conn = DB::conn();
 
 // validasi query param email
 if (!isset($_GET['email'])) {
@@ -22,8 +26,8 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $password  = isset($_POST['password']) ? trim($_POST['password']) : '';
-    $password2 = isset($_POST['password2']) ? trim($_POST['password2']) : '';
+    $password  = trim($_POST['password'] ?? '');
+    $password2 = trim($_POST['password2'] ?? '');
 
     // Validasi dasar
     if ($password === '' || $password2 === '') {
@@ -35,58 +39,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        // Ambil reset_code (pastikan user memang datang dari alur reset)
+        // Ambil reset_code
         $stmt = $conn->prepare("SELECT reset_code FROM user WHERE email = ?");
-        if (!$stmt) {
-            $errors[] = "Terjadi kesalahan database (prepare).";
+        $stmt->execute([$email]);
+        $r = $stmt->fetch();
+
+        if (!$r) {
+            $errors[] = "Email tidak ditemukan.";
+        } elseif (empty($r['reset_code'])) {
+            $errors[] = "Token reset tidak valid atau sudah digunakan.";
         } else {
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            $r = $res->fetch_assoc();
-            $stmt->close();
+            // Update password
+            $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            if (!$r) {
-                $errors[] = "Email tidak ditemukan.";
+            $stmt2 = $conn->prepare(
+                "UPDATE user 
+                 SET password = ?, reset_code = NULL, code_expired = NULL 
+                 WHERE email = ?"
+            );
+
+            $ok = $stmt2->execute([$hash, $email]);
+
+            if ($ok && $stmt2->rowCount() > 0) {
+                echo "<script>
+                        alert('Password berhasil diubah. Silakan login.');
+                        window.location='login.html';
+                      </script>";
+                exit;
             } else {
-                // Pastikan ada reset_code (token) — jika kosong, tolak proses reset
-                if (empty($r['reset_code'])) {
-                    $errors[] = "Token reset tidak ditemukan atau sudah dipakai. Silakan minta kode baru.";
-                } else {
-                    // Hash password (safe)
-                    $hash = password_hash($password, PASSWORD_DEFAULT);
-
-                    // Update password dan hapus token
-                    $stmt2 = $conn->prepare("UPDATE user SET password = ?, reset_code = NULL, code_expired = NULL WHERE email = ?");
-                    if (!$stmt2) {
-                        $errors[] = "Terjadi kesalahan database (prepare update).";
-                    } else {
-                        $stmt2->bind_param("ss", $hash, $email);
-                        $ok = $stmt2->execute();
-
-                        if ($ok) {
-                            // pastikan row benar-benar diupdate
-                            if ($stmt2->affected_rows > 0) {
-                                $stmt2->close();
-                                $success = true;
-                                // sukses: redirect ke login
-                                echo "<script>
-                                        alert('Password berhasil diubah. Silakan login.');
-                                        window.location='login.html';
-                                      </script>";
-                                exit;
-                            } else {
-                                // execute sukses tapi no rows affected => mungkin email mismatch
-                                $errors[] = "Update tidak mengubah data (mungkin email tidak cocok).";
-                                $stmt2->close();
-                            }
-                        } else {
-                            $errors[] = "Gagal menyimpan password ke database. Silakan coba lagi.";
-                            // untuk debugging (hapus di production): $errors[] = "Debug: " . htmlspecialchars($stmt2->error);
-                            $stmt2->close();
-                        }
-                    }
-                }
+                $errors[] = "Gagal menyimpan password. Silakan coba lagi.";
             }
         }
     }

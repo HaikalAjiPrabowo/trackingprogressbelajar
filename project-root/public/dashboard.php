@@ -6,7 +6,9 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
-?>
+if ($_SESSION['role'] === 'admin'): ?>
+    <a href="admin_panel.php" class="btn btn-danger">Admin Panel</a>
+<?php endif; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -39,6 +41,9 @@ if (!isset($_SESSION['user_id'])) {
             class="rounded-circle me-2">
 
         <span><?= htmlspecialchars($namaUser) ?></span>
+        <span class="badge bg-primary ms-2"><?= $_SESSION['role'] ?></span>
+        <?php if ($_SESSION['role'] === 'admin'): ?>
+<?php endif; ?>
     </button>
 
     <ul class="dropdown-menu dropdown-menu-end">
