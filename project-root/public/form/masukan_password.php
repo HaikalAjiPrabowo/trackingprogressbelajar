@@ -1,5 +1,6 @@
 <?php
 // masukan_password.php
+ oprekanhaikal
 ini_set('display_errors', 1); 
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,8 +10,16 @@ use Utils\DB;
 
 // ambil koneksi PDO
 $conn = DB::conn();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// validasi query param email
+use Utils\DB;
+require "../api/src/Utils/DB.php";   // load class DB
+
+$pdo = DB::conn();   // ambil koneksi PDO
+
+// validasi email di URL
 if (!isset($_GET['email'])) {
     echo "<script>alert('Akses tidak valid.'); window.location='lupa_pw.html';</script>";
     exit;
@@ -26,10 +35,15 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+ oprekanhaikal
+    $password  = trim($_POST['password'] ?? '');
+    $password2 = trim($_POST['password2'] ?? '');
+ main
+
     $password  = trim($_POST['password'] ?? '');
     $password2 = trim($_POST['password2'] ?? '');
 
-    // Validasi dasar
+    // Validasi password
     if ($password === '' || $password2 === '') {
         $errors[] = "Masukkan password dan konfirmasi password.";
     } elseif ($password !== $password2) {
@@ -39,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+ oprekanhaikal
         // Ambil reset_code
         $stmt = $conn->prepare("SELECT reset_code FROM user WHERE email = ?");
         $stmt->execute([$email]);
@@ -68,6 +83,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             } else {
                 $errors[] = "Gagal menyimpan password. Silakan coba lagi.";
+
+        // cek apakah email dan reset_code valid
+        $stmt = $pdo->prepare("SELECT reset_code FROM user WHERE email = ?");
+        $stmt->execute([$email]);
+        $data = $stmt->fetch();
+
+        if (!$data) {
+            $errors[] = "Email tidak ditemukan.";
+        } elseif (empty($data['reset_code'])) {
+            $errors[] = "Token reset tidak valid atau sudah digunakan.";
+        } else {
+
+            // hash password
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            // update password + hapus reset_code
+            $stmt2 = $pdo->prepare("
+                UPDATE user 
+                SET password = ?, reset_code = NULL, code_expired = NULL 
+                WHERE email = ?
+            ");
+
+            if ($stmt2->execute([$hash, $email])) {
+
+                if ($stmt2->rowCount() > 0) {
+                    echo "<script>
+                            alert('Password berhasil diubah. Silakan login.');
+                            window.location='login.html';
+                          </script>";
+                    exit;
+                } else {
+                    $errors[] = "Gagal mengubah password. Email mungkin tidak cocok.";
+                }
+
+            } else {
+                $errors[] = "Gagal menyimpan password ke database.";
+ main
             }
         }
     }
@@ -93,16 +145,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="post" autocomplete="off">
-      <label for="password">Password baru</label><br>
-      <input type="password" id="password" name="password" required style="width:100%;padding:8px;margin:8px 0;"><br>
+      <label>Password baru</label>
+      <input type="password" name="password" required style="width:100%;padding:8px;margin:8px 0;">
 
-      <label for="password2">Konfirmasi password</label><br>
-      <input type="password" id="password2" name="password2" required style="width:100%;padding:8px;margin:8px 0;"><br>
+      <label>Konfirmasi password</label>
+      <input type="password" name="password2" required style="width:100%;padding:8px;margin:8px 0;">
 
       <button type="submit" style="padding:10px 14px;width:100%;">Simpan Password Baru</button>
     </form>
 
-    <p style="margin-top:12px;font-size:13px;color:#666;">Jika ada masalah, kembali ke <a href="login.html">minta kode baru</a>.</p>
+    <p style="margin-top:12px;font-size:13px;color:#666;">
+      Jika ada masalah, kembali ke <a href="lupa_pw.html">minta kode baru</a>.
+    </p>
   </div>
 </body>
 </html>
