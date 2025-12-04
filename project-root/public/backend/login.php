@@ -1,13 +1,39 @@
 <?php
 session_start();
 
+// FIX PATH
+require_once __DIR__. '/../api/src/Utils/DB.php';
+use Utils\DB;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    $conn = DB::conn();
+
+    $stmt = $conn->prepare("SELECT * FROM user WHERE Email = ?");
+    $stmt->execute([$email]);
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        echo "<script>
+                alert('Email tidak terdaftar!');
+                window.location='../form/login.html';
+              </script>";
+        exit;
+    }
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email = trim($_POST['email']);
 
     // cek password benar
     if (!password_verify($password, $row['Password'])) {
-        echo "Password salah";
+        echo "<script>
+                alert('Email atau password salah!');
+                window.location='../form/login.html';
+              </script>";
         exit;
     }
 
@@ -23,6 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // redirect dashboard
     header("Location: ../dashboard.php");
     exit;
-}
+
 
 ?>
