@@ -2,7 +2,7 @@
 session_start();
 
 // FIX PATH
-require_once __DIR__ . '/../api/src/Utils/DB.php';
+require_once __DIR__. '/../api/src/Utils/DB.php';
 use Utils\DB;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,13 +17,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $row = $stmt->fetch();
 
     if (!$row) {
-        echo "Email tidak ditemukan";
+        echo "<script>
+                alert('Email tidak terdaftar!');
+                window.location='../form/login.html';
+              </script>";
         exit;
     }
+}
 
     // cek password benar
     if (!password_verify($password, $row['Password'])) {
-        echo "Password salah";
+        echo "<script>
+                alert('Email atau password salah!');
+                window.location='../form/login.html';
+              </script>";
         exit;
     }
 
@@ -39,6 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // redirect dashboard
     header("Location: ../dashboard.php");
     exit;
-}
+
 
 ?>
